@@ -182,6 +182,59 @@
 
         var locationRoute = L.polyline(locationCoordinates, { color: 'red' }).addTo(map);
 
+	     // Yemek ve Dinlenme Rotası İçin Markörleri ve Koordinatları Oluştur
+        for (var j = 0; j < foods.length; j++) {
+            var foodMarkerIcon = L.icon({
+                iconUrl: foods[j].icon,
+                iconSize: [25, 25],
+                iconAnchor: [12, 25],
+                popupAnchor: [1, -34]
+            });
+
+            var foodMarker = L.marker([foods[j].lat, foods[j].lon], { icon: foodMarkerIcon })
+                .addTo(map)
+                .bindPopup(getPopupContent(foods[j]));
+
+            markers.push(foodMarker);
+            foodCoordinates.push([foods[j].lat, foods[j].lon]);
+        }
+
+       
+
+        function showRoute(routeName) {
+            if (routeName === 'locations') {
+                map.fitBounds(locationRoute.getBounds());
+            } else if (routeName === 'foods') {
+                map.fitBounds(foodRoute.getBounds());
+            }
+        }
+
+        map.on('click', function () {
+            closeLargeImage();
+        });
+
+        function likeLocation(name) {
+            var location = findLocationByName(name);
+            if (location) {
+                location.likes++;
+                updatePopupContent(location);
+            }
+        }
+
+        function findLocationByName(name) {
+            for (var i = 0; i < locations.length; i++) {
+                if (locations[i].name === name) {
+                    return locations[i];
+                }
+            }
+            return null;
+        }
+
+        function updatePopupContent(location) {
+            var popup = location._popup;
+            popup.setContent(getPopupContent(location));
+        }
+
         function getPopupContent(location) {
             var languageSelect = document.getElementById('language-select');
             var selectedLanguage = languageSelect.value;
